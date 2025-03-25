@@ -2,6 +2,10 @@
 
 This project is a full-stack backend application using Node.js with Express, SQLite for database management, and Python with Redis for rate-limiting user connections.
 
+## Team
+- **Daniel Lima** - [GitHub](https://github.com/daniellima0)
+- **Henrique Barretto** - [GitHub](https://github.com/henriquebarretto)
+
 ## Features
 - **User Registration & Authentication**: Users can register and log in.
 - **Service Listings**: Users can create and view services.
