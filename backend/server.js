@@ -94,7 +94,7 @@ app.post("/login", async (req, res) => {
           const response = await axios.get(
             `http://127.0.0.1:5000/can_connect`,
             {
-              params: { user_id: 1 },
+              params: { user_id: row.id },
               headers: {
                 "Content-Type": "application/json",
               },
@@ -123,57 +123,34 @@ app.post("/login", async (req, res) => {
   );
 });
 
-// Route to display all services (items for sale)
-app.get("/services", (req, res) => {
-  const query = "SELECT * FROM services WHERE available = 1"; // Example query for available items
-  db.all(query, [], (err, rows) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ message: "Error fetching items", error: err.message });
-    }
-    res.json(rows);
-  });
-});
-
-// Route to display a specific service by ID
-app.get("/services/:id", (req, res) => {
-  const serviceId = req.params.id;
-  const query = "SELECT * FROM services WHERE id = ?";
-  db.get(query, [serviceId], (err, row) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ message: "Error fetching item", error: err.message });
-    }
-    if (!row) {
-      return res.status(404).json({ message: "Item not found" });
-    }
-    res.json(row);
-  });
-});
-
-// Route to create a new service (item for sale)
-app.post("/services", (req, res) => {
-  const { title, description, price, user_id } = req.body;
-
-  // Validate required fields
-  if (!title || !price || !user_id) {
-    return res
-      .status(400)
-      .json({ message: "Missing required fields (title, price, user_id)" });
+// Rota GET para /buy com user_id como parâmetro
+app.get("/buy/:user_id", async (req, res) => {
+  const userId = req.params.user_id;
+  try {
+    // Envia a requisição para o Flask para registrar o uso do serviço 'achat'
+    await axios.post("http://127.0.0.1:5000/record_service_use", {
+      user_id: userId,
+      service: "achat",
+    });
+    res.send(`Usuário ${userId} acessou a rota de compra (achat)!`);
+  } catch (error) {
+    res.status(500).send("Erro ao registrar compra no Flask.");
   }
+});
 
-  const query =
-    "INSERT INTO services (title, description, price, available, user_id) VALUES (?, ?, ?, ?, ?)";
-  db.run(query, [title, description, price, 1, user_id], function (err) {
-    if (err) {
-      return res
-        .status(500)
-        .json({ message: "Error creating item", error: err.message });
-    }
-    res.json({ message: "Item created successfully", id: this.lastID });
-  });
+// Rota GET para /sell com user_id como parâmetro
+app.get("/sell/:user_id", async (req, res) => {
+  const userId = req.params.user_id;
+  try {
+    // Envia a requisição para o Flask para registrar o uso do serviço 'vente'
+    await axios.post("http://127.0.0.1:5000/record_service_use", {
+      user_id: userId,
+      service: "vente",
+    });
+    res.send(`Usuário ${userId} acessou a rota de venda (vente)!`);
+  } catch (error) {
+    res.status(500).send("Erro ao registrar venda no Flask.");
+  }
 });
 
 const PORT = 3000;
